@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <style>
+        td{
+            border-radius: 10px;
+            border-collapse: separate;
+        }
+        input{
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        <strong>Message:</strong> {{ message }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+    </div>
+    {% endfor %}
+
+    <h3 align="center">Create your account!</h3>
+    <form method="post" action="/signup">
+        {% csrf_token %}
+    <table align="center" border="0">
+        <tr style="background-color: antiquewhite;">
+        <div class="form-group">
+           <td><label for="username">Username</label></td>
+            <td><input type="text" class="form-control" id="username" name="username" placeholder="Create A Username (use only letters and numbers)" Required></td>
+        </div>
+        </tr>
+        <tr style="background-color: antiquewhite;">
+        <div class="form-group">
+            <td><label for="fname">First Name</label></td>
+            <td><input type="text" class="form-control" id="fname" name="fname" placeholder="Enter Your First Name" Required></td>
+        </div>
+        </tr>
+        <tr style="background-color: antiquewhite;">
+        <div class="form-group">
+            <td><label for="lname">Last Name</label></td>
+            <td><input type="text" class="form-control" id="lname" name="lname" placeholder="Enter Your Last Name" Required></td>
+        </div>
+        </tr>
+        <tr style="background-color: antiquewhite;">
+        <div class="form-group">
+           <td><label for="email">Email</label></td> 
+           <td><input type="email" class="form-control" id="email" name="email" placeholder="Enter Your Email Address" Required></td>
+        </div>
+        </tr>
+        <tr style="background-color: antiquewhite;">
+        <div class="form-group">
+            <td><label for="pass1">Password</label></td>
+            <td><input type="password" class="form-control" id="pass1" name="pass1" placeholder="Create Your Password" Required></td>
+        </div>
+        </tr>
+        <tr style="background-color: antiquewhite;">
+        <div class="form-group">
+            <td><label for="pass2">Confirm Password</label></td>
+            <td><input type="password" class="form-control" id="pass2" name="pass2" placeholder="Confirm Your Password" Required></td>
+        </div>
+        </tr>
+        <tr style="background-color: antiquewhite;">
+        <td><button type="submit" class="btn btn-primary">Sign Up</button></td>
+        </tr>
+    </table>
+    </form>
+</body>
+</html>
