@@ -9,6 +9,7 @@ from rest_framework.permissions import IsAuthenticated
 from .models import MarketData
 from .serializers import MarketDataSerializer
 from .utils import fetch_market_data
+from django.shortcuts import render
 
 
 
@@ -23,17 +24,14 @@ def home(request):
 
 def signup(request):
     if request.method == "POST":
-        username = request.POST['username']
-        fname = request.POST['fname']
-        lname = request.POST['lname']
+        username = request.POST['uname']
         email = request.POST['email']
-        pass1 = request.POST['pass1']
-        pass2 = request.POST['pass2']
+        pass1 = request.POST['psw']
+        pass2 = request.POST['psw-repeat']
         
         
         myuser = User.objects.create_user(username, email, pass1)
-        myuser.first_name = fname
-        myuser.last_name = lname
+        myuser.first_name = username
         # myuser.is_active = False
         myuser.save()
         messages.success(request, "Your Account has been created succesfully")
@@ -46,8 +44,8 @@ def signup(request):
 
 def signin(request):
     if request.method == 'POST':
-        username = request.POST['username']
-        pass1 = request.POST['pass1']
+        username = request.POST['uname']
+        pass1 = request.POST['psw']
         
         user = authenticate(username=username, password=pass1)
         
@@ -63,16 +61,8 @@ def signin(request):
     return render(request, "signin.html")
 @login_required
 # views.py
-def market_dashboard(request):
-    if request.method == 'POST':
-        symbol = request.POST.get('symbol', 'AAPL')
-        years = int(request.POST.get('years', 1))
 
-        # Fetch the data and plot
-        raw_data, plot = fetch_market_data(symbol, years)
 
-        from django.shortcuts import render
-from .utils import fetch_market_data
 
 def market_dashboard(request):
     if request.method == 'POST':

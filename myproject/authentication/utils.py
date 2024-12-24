@@ -1,9 +1,9 @@
 def fetch_market_data(symbol, years):
     import streamlit as st
-    import yfinance as yf
-    import plotly.graph_objects as go
+    import yfinance as yf #for company data
+    import plotly.graph_objects as go #visualizations
     from datetime import date , timedelta
-    import pandas as pd
+    import pandas as pd #preprocessing
 
     end_date = date.today()
     start_date = end_date - timedelta(days=years * 365)
