@@ -60,8 +60,6 @@ def signin(request):
     
     return render(request, "signin.html")
 @login_required
-# views.py
-
 
 
 def market_dashboard(request):
@@ -70,21 +68,104 @@ def market_dashboard(request):
         years = int(request.POST.get('years', 1))
 
         # Fetch the data and plot
-        raw_data, plot = fetch_market_data(symbol, years)
+        raw_data, plot , pie_chart , bar_chart  = fetch_market_data(symbol, years)
 
         # Check if raw_data is empty
         if raw_data.empty:
-            return render(request, 'dashboard.html', {
+            return render(request, 'index.html', {
                 'error_message': 'No data available for the selected stock symbol and date range.'
             })
 
-        return render(request, 'dashboard.html', {
+        return render(request, 'index.html', {
             'raw_data': raw_data,
-            'plot': plot
+            'plot': plot,
+            'pie_chart':pie_chart,
+            'bar_chart':bar_chart,
         })
 
-    return render(request, 'dashboard.html')
+    return render(request, 'index.html')
 
+from .forms import StockForm
+from .prediction import generate_market_trend_report
+import pandas as pd
+
+def predict(request):
+    predictions = None
+    symbol = None
+    predict_plot = None
+    if request.method == "POST":
+        form = StockForm(request.POST)
+        if form.is_valid():
+            symbol = form.cleaned_data['symbol']
+            start_date = form.cleaned_data['start_date']
+            end_date = form.cleaned_data['end_date']
+            
+            # Generate the market trend report and get predictions
+            predictions, future_dates ,predict_plot = generate_market_trend_report(symbol, start_date, end_date)
+            predictions = list(zip(pd.to_datetime(future_dates, unit='s').strftime('%Y-%m-%d'), predictions)) 
+    
+    else:
+        form = StockForm()
+
+    return render(request, 'dashboard.html', {'form': form, 'predictions': predictions, 'predict_plot': predict_plot , 'symbol': symbol})
+
+#comparing two companies stock data
+import yfinance as yf
+import plotly.graph_objects as go
+from .forms import StockComparisonForm
+
+def comparision(request):
+    comparison_chart = None
+    company1 = None
+    company2 = None
+    form = StockComparisonForm()
+
+    if request.method == 'POST':
+        form = StockComparisonForm(request.POST)
+        if form.is_valid():
+            company1 = form.cleaned_data['company1']
+            company2 = form.cleaned_data['company2']
+            start_date = form.cleaned_data['start_date']
+            end_date = form.cleaned_data['end_date']
+
+            # Fetch stock data for both companies
+            stock1 = yf.Ticker(company1).history(start=start_date, end=end_date)
+            stock2 = yf.Ticker(company2).history(start=start_date, end=end_date)
+
+            # Ensure both have the same index for comparison
+            stock1.reset_index(inplace=True)
+            stock2.reset_index(inplace=True)
+
+            # Plot the data
+            fig = go.Figure()
+
+            fig.add_trace(go.Scatter(
+                x=stock1['Date'],
+                y=stock1['Close'],
+                mode='lines',
+                name=f"{company1} Closing Prices"
+            ))
+            fig.add_trace(go.Scatter(
+                x=stock2['Date'],
+                y=stock2['Close'],
+                mode='lines',
+                name=f"{company2} Closing Prices"
+            ))
+
+            fig.update_layout(
+                title=f"Stock Comparison: {company1} vs {company2}",
+                xaxis_title="Date",
+                yaxis_title="Closing Price (USD)",
+                legend_title="Companies"
+            )
+
+            comparison_chart = fig.to_html()
+
+    return render(request, 'compare_stock.html', {'form': form, 'comparison_chart': comparison_chart})
+
+
+def updates(request):
+    return render(request,"update.html")
 
 def signout(request):
     logout(request)

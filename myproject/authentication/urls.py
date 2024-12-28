@@ -12,5 +12,8 @@ urlpatterns = [
     path('signup', views.signup, name='signup'),
     path('signin', views.signin, name='signin'),
     path('signout', views.signout, name='signout'),
-    path('dashboard', views.market_dashboard, name='dashboard'),
+    path('index', views.market_dashboard, name='index'),
+    path('dashboard',views.predict,name='dashboard'),
+    path('update',views.updates,name='update'),
+    path('compare_stock',views.comparision,name='compare_stock')
 ] + router.urls

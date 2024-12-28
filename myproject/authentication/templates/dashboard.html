@@ -3,95 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Market Dashboard</title>
+    <title>Market Trend Prediction</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
+    <style>
+      body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+      
+      .topnav {
+        overflow: hidden;
+        background-color: #333;
+      }
+      
+      .topnav a {
+        float: left;
+        color: #f2f2f2;
+        text-align: center;
+        padding: 14px 16px;
+        text-decoration: none;
+        font-size: 17px;
+      }
+      
+      .topnav a:hover {
+        background-color: #ddd;
+        color: black;
+      }
+      
+      .topnav a.active {
+        background-color: #04AA6D;
+        color: white;
+      }
+      </style>
 </head>
 <body>
-    <div class="ui container">
-        <h2 class="ui header">Market Dashboard</h2>
+  <div class="topnav">
+    <a  href="/index">Home</a>
+    <a class="active" href="/dashboard" target="_top">Predictions</a>
+    <a href="/update">Updates</a>
+    <a href="/compare_stock" target="_top">Comparison</a>
+    <a href="/signout">SignOut</a>
+  </div>
+    <h1>Stock Market Trend Prediction</h1>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Generate Report</button>
+    </form>
 
-        <!-- Form for Stock Selection -->
-        <form method="POST" action="/dashboard" class="ui form">
-            {% csrf_token %}
-            
-            <!-- Stock Symbol Dropdown -->
-            <div class="field">
-                <label for="symbol">Select Stock Symbol:</label>
-                <select name="symbol" id="symbol" class="ui dropdown">
-                    <option value="AAPL" {% if selected_symbol == 'AAPL' %}selected{% endif %}>AAPL</option>
-                    <option value="GOOG" {% if selected_symbol == 'GOOG' %}selected{% endif %}>GOOG</option>
-                    <option value="MSFT" {% if selected_symbol == 'MSFT' %}selected{% endif %}>MSFT</option>
-                    <option value="GME" {% if selected_symbol == 'GME' %}selected{% endif %}>GME</option>
-                </select>
-            </div>
+    {% if predictions %}
+    <h2>Predicted Stock Prices for {{ symbol }}</h2>
+    <table border="1" style="width: 50%; text-align: center; margin: auto;">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Predicted Price (USD)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for date, price in predictions %}
+                <tr>
+                    <td>{{ date }}</td>
+                    <td>{{ price }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No predictions available.</p>
+{% endif %}
 
-            <div class="field">
-                <label for="years">Years of Prediction:</label>
-                <input
-                    type="range"
-                    name="years"
-                    id="years"
-                    min="1"
-                    max="4"
-                    value="{{ selected_years }}"
-                    oninput="this.nextElementSibling.value = this.value"
-                >
-                <output>{{ selected_years }}</output> Year(s)
-            </div>
 
-            <!-- Submit Button -->
-            <button type="submit" class="ui primary button">Fetch Data</button>
-        </form>
-
-        <!-- Display Error Message -->
-        {% if error_message %}
-            <div class="ui error message">
-                <p>{{ error_message }}</p>
-            </div>
-        {% endif %}
-
-        <!-- Raw Data Display -->
-        <div class="ui segment">
-            <h3>Raw Data</h3>
-            {% if raw_data is not none and not raw_data.empty %}
-                <table class="ui celled table">
-                    <thead>
-                        <tr>
-                            {% for column in raw_data.columns %}
-                                <th>{{ column }}</th>
-                            {% endfor %}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for row in raw_data.values %}
-                            <tr>
-                                {% for cell in row %}
-                                    <td>{{ cell }}</td>
-                                {% endfor %}
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            {% else %}
-                <p>No data to display. Submit the form to fetch data.</p>
-            {% endif %}
-        </div>
-
-        <!-- Graph Display -->
-        <div class="ui segment">
-            <h3>Stock Data Visualization</h3>
-            {% if plot %}
-                <div>{{ plot|safe }}</div>
-            {% else %}
-                <p>No graph to display. Submit the form to generate visualization.</p>
-            {% endif %}
-        </div>
-    </div>
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
-    <script>
-        $('.ui.dropdown').dropdown();
-    </script>
+    {% if predict_plot %}
+       <h2> Scatter Plot for Predicted Values</h2>
+       <div>{{ predict_plot|safe }}</div>
+    {% else %}
+      <h2>No plot to display</h2>
+    {% endif %}
 </body>
 </html>

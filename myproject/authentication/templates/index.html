@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home Page</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
     <style>
       body {
         margin: 0;
@@ -54,14 +55,112 @@
         
         <div class="topnav">
           <a class="active" href="#home">Home</a>
-          <a href="/dashboard" target="_top">Dashboard</a>
-          <a href="#about">About</a>
+          <a href="/dashboard" target="_top">Predictions</a>
+          <a href="/update">Updates</a>
+          <a href="/compare_stock" target="_top">Comparison</a>
           <a href="/signout">SignOut</a>
         </div>
         
         <div style="padding-left:16px">
           <h4>welcome {{fname}}</h4>
         </div>
+        <div class="ui container">
+          <h2 class="ui header">Market Dashboard</h2>
+  
+          <!-- Form for Stock Selection -->
+          <form method="POST" action="/index" class="ui form">
+              {% csrf_token %}
+              
+              <!-- Stock Symbol Dropdown -->
+              <div class="field">
+                <label for="symbol">Select Stock Symbol:</label>
+                <input type="text" id="symbol" name="symbol" placeholder="e.g., AAPL, AMZN, MSFT" value="{{ selected_symbol }}" required>
+              </div>
+  
+              <div class="field">
+                  <label for="years">Years of Prediction:</label>
+                  <input
+                      type="range"
+                      name="years"
+                      id="years"
+                      min="1"
+                      max="4"
+                      value="{{ selected_years }}"
+                      oninput="this.nextElementSibling.value = this.value"
+                  >
+                  <output>{{ selected_years }}</output> Year(s)
+              </div>
+  
+              <!-- Submit Button -->
+              <button type="submit" class="ui primary button">Fetch Data</button>
+          </form>
+  
+          <!-- Display Error Message -->
+          {% if error_message %}
+              <div class="ui error message">
+                  <p>{{ error_message }}</p>
+              </div>
+          {% endif %}
+  
+          <!-- Raw Data Display -->
+          <div class="ui segment">
+              <he>Stock Data</he>
+              {% if raw_data is not none and not raw_data.empty %}
+                  <table class="ui celled table">
+                      <thead>
+                          <tr>
+                              {% for column in raw_data.columns %}
+                                  <th>{{ column }}</th>
+                              {% endfor %}
+                          </tr>
+                      </thead>
+                      <tbody>
+                          {% for row in raw_data.values %}
+                              <tr>
+                                  {% for cell in row %}
+                                      <td>{{ cell }}</td>
+                                  {% endfor %}
+                              </tr>
+                          {% endfor %}
+                      </tbody>
+                  </table>
+              {% else %}
+                  <p>No data to display. Submit the form to fetch data.</p>
+              {% endif %}
+          </div>
+  
+          <!-- Graph Display -->
+          <div class="ui segment">
+              <h3>Stock Data Visualization</h3>
+              {% if plot %}
+                  <div>{{ plot|safe }}</div>
+              {% else %}
+                  <p>No graph to display. Submit the form to generate visualization.</p>
+              {% endif %}
+          </div>
+          <div class="ui segment">
+            <h3>Pie-Chart</h3>
+            {% if pie_chart %}
+                <div>{{ pie_chart|safe }}</div>
+            {% else %}
+                <p>No graph to display. Submit the form to generate visualization.</p>
+            {% endif %}
+          </div>
+          <div class="ui segment">
+            <h3>Bar-Chart</h3>
+            {% if bar_chart %}
+                <div>{{ bar_chart|safe }}</div>
+            {% else %}
+                <p>No graph to display. Submit the form to generate visualization.</p>
+            {% endif %}
+          </div>
+      </div>
+  
+      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
+      <script>
+          $('.ui.dropdown').dropdown();
+      </script>
         
     {% else %}
     <button type="submit"><a href="/signup">SignUp</a></button>
